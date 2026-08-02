@@ -14,8 +14,8 @@ export default function CustomerLayout() {
   return (
     <div className="min-h-screen bg-[#F9F6F0] flex flex-col text-slate-800 font-sans">
       {/* Customer Full Web Header */}
-      <header className="bg-white border-b border-slate-200/80 px-6 py-4 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-10 py-4 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             {!isMenuPage && location.pathname !== '/customer' && (
               <button
@@ -67,8 +67,8 @@ export default function CustomerLayout() {
         </div>
       </header>
 
-      {/* Main Container View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-8 animate-fade-in">
+      {/* Main Container View (Wider bounds to reduce side empty space) */}
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-8 animate-fade-in">
         <Outlet />
       </main>
 

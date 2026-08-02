@@ -118,7 +118,7 @@ export default function Login() {
           <div className="mt-8 pt-6 border-t border-slate-100">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider text-center mb-3 flex items-center justify-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[#C9A96E]" />
-              <span>Pilih Role Demo Pegawai</span>
+              <span>Pilih Role Pegawai</span>
             </p>
             <div className="grid grid-cols-2 gap-2">
               {[
