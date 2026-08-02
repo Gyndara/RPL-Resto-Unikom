@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import Button from '../../components/common/Button';
-import Modal from '../../components/common/Modal';
 import Skeleton from '../../components/common/Skeleton';
-import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
-import { CreditCard, QrCode, Banknote, Printer, CheckCircle2, Search, UtensilsCrossed } from 'lucide-react';
+import {
+  Search,
+  Banknote,
+  CreditCard,
+  QrCode,
+  CheckCircle2,
+  Printer,
+} from 'lucide-react';
 
 export default function CashierPayments() {
   const [activeOrders, setActiveOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Step 1 Find Order Filter State
+  // Step 1: Find Order Filters
   const [tableFilter, setTableFilter] = useState('');
   const [customerFilter, setCustomerFilter] = useState('');
 
-  // Selected Order for Checkout (Step 2 & 3)
+  // Selected Order for Checkout
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [cashAmount, setCashAmount] = useState('');
   const [processLoading, setProcessLoading] = useState(false);
 
-  // Receipt Modal State
-  const [receiptData, setReceiptData] = useState(null);
+  // Payment Complete Screen State (Screen 3 of Kasir.png)
+  const [completedPayment, setCompletedPayment] = useState(null);
 
   useEffect(() => {
     fetchActiveOrders();
@@ -37,11 +41,8 @@ export default function CashierPayments() {
         (o) => o.status_pesanan !== 'Completed' && o.status_pesanan !== 'Cancelled'
       );
       setActiveOrders(unpaid);
-      if (unpaid.length > 0 && !selectedOrder) {
-        setSelectedOrder(unpaid[0]);
-      }
     } catch (err) {
-      toast.error('Gagal mengambil daftar tagihan');
+      console.error('Error fetching cashier orders', err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ export default function CashierPayments() {
 
       toast.success('Pembayaran berhasil diproses!');
 
-      setReceiptData({
+      setCompletedPayment({
         payment: res.data.data,
         order: selectedOrder,
         cashPaid: paymentMethod === 'Cash' ? parseFloat(cashAmount || total) : total,
@@ -96,6 +97,72 @@ export default function CashierPayments() {
     return matchTable && matchCust;
   });
 
+  // SCREEN 3: Payment Complete Screen matching Kasir.png Screen 3
+  if (completedPayment) {
+    const total = calculateTotal(completedPayment.order);
+
+    return (
+      <div className="space-y-8 animate-fade-in max-w-4xl mx-auto py-4">
+        {/* Title Header matching Kasir.png Screen 3 */}
+        <div className="space-y-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payment complete</h1>
+          <p className="text-sm text-slate-500 font-medium">Receipt ready to print.</p>
+        </div>
+
+        {/* Center Receipt Card matching Kasir.png Screen 3 */}
+        <div className="bg-white rounded-3xl p-8 md:p-10 shadow-lg border border-slate-200/80 max-w-md mx-auto space-y-6 text-slate-800">
+          <div className="flex justify-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+          </div>
+
+          <div className="text-center space-y-1">
+            <h3 className="text-xl font-extrabold text-slate-900">Thank you!</h3>
+            <p className="text-xs text-slate-500 font-medium">
+              Order #{completedPayment.order.id_pesanan} . {completedPayment.order.meja?.nama_meja}
+            </p>
+          </div>
+
+          <div className="border-t border-b border-dashed border-slate-200 py-4 space-y-2 text-xs">
+            {completedPayment.order.detail.map((d) => (
+              <div key={d.id_detail} className="flex justify-between">
+                <span className="font-semibold text-slate-700">
+                  {d.jumlah} x {d.menu.nama_menu}
+                </span>
+                <span className="font-extrabold text-slate-900">
+                  Rp {d.subtotal.toLocaleString('id-ID')}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-center text-sm font-extrabold text-slate-900">
+            <span>Total</span>
+            <span className="text-base font-black">Rp {total.toLocaleString('id-ID')}</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <button
+              onClick={() => window.print()}
+              className="py-3 px-4 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print</span>
+            </button>
+            <button
+              onClick={() => setCompletedPayment(null)}
+              className="py-3 px-4 rounded-xl bg-[#2A2725] hover:bg-slate-900 text-white font-bold text-xs transition-colors cursor-pointer"
+            >
+              New Payment
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // SCREEN 1 & 2: Process Payment Screen matching Kasir.png Screen 1 & 2
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Title Header matching Kasir.png */}
@@ -104,15 +171,15 @@ export default function CashierPayments() {
         <p className="text-sm text-slate-500 font-medium">Find the order and complete checkout in three steps</p>
       </div>
 
-      {/* 3-Step Process Layout matching Kasir.png Screen 1 & 2 */}
+      {/* 3-Step Process Layout matching Kasir.png */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Step 1: Find Order Box (Left Column) */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
             <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
               1
             </span>
-            <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider">Find Order</h3>
+            <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">Find Order</h3>
           </div>
 
           <div className="space-y-3">
@@ -137,12 +204,27 @@ export default function CashierPayments() {
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-800"
               />
             </div>
+
+            <button
+              type="button"
+              onClick={fetchActiveOrders}
+              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Open Order</span>
+            </button>
           </div>
 
-          {/* Unpaid Order List Cards */}
-          <div className="pt-2 space-y-2 max-h-80 overflow-y-auto pr-1">
-            {filteredOrders.length === 0 ? (
-              <div className="text-center py-6 text-xs text-slate-400">Tidak ada pesanan aktif.</div>
+          {/* List of Unpaid Order Cards matching Kasir.png with unclipped borders */}
+          <div className="pt-2 pb-1 px-1 space-y-2.5 max-h-80 overflow-y-auto">
+            {loading && activeOrders.length === 0 ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((n) => (
+                  <Skeleton key={n} className="h-14 w-full rounded-2xl" />
+                ))}
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400 font-medium">Tidak ada pesanan aktif.</div>
             ) : (
               filteredOrders.map((ord) => {
                 const total = calculateTotal(ord);
@@ -152,21 +234,19 @@ export default function CashierPayments() {
                   <div
                     key={ord.id_pesanan}
                     onClick={() => setSelectedOrder(ord)}
-                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    className={`p-4 rounded-2xl transition-all cursor-pointer flex items-center justify-between border-2 ${
                       isSelected
-                        ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
-                        : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100'
+                        ? 'border-slate-900 bg-white shadow-xs font-bold'
+                        : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300'
                     }`}
                   >
                     <div>
-                      <h4 className="font-extrabold text-xs">
+                      <h4 className="font-extrabold text-xs text-slate-900">
                         #{ord.id_pesanan} . {ord.meja?.nama_meja}
                       </h4>
-                      <p className={`text-[11px] ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {ord.nama_pelanggan}
-                      </p>
+                      <p className="text-[11px] text-slate-500 font-medium">{ord.nama_pelanggan}</p>
                     </div>
-                    <span className={`font-extrabold text-xs ${isSelected ? 'text-amber-300' : 'text-slate-900'}`}>
+                    <span className="font-extrabold text-xs text-slate-900">
                       Rp {total.toLocaleString('id-ID')}
                     </span>
                   </div>
@@ -176,32 +256,27 @@ export default function CashierPayments() {
           </div>
         </div>
 
-        {/* Step 2 & 3 Right Container */}
+        {/* Step 2 & 3 Container (Right Column) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Step 2: Order Details Box */}
+          {/* Step 2: Order Details Box matching Kasir.png */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
               <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
                 2
               </span>
-              <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider">Order Details</h3>
+              <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">Order Details</h3>
             </div>
 
             {selectedOrder ? (
               <div className="space-y-4">
-                <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-3">
-                  <div>
-                    <h4 className="font-extrabold text-slate-900 text-sm">Order #{selectedOrder.id_pesanan}</h4>
-                    <p className="text-slate-500 font-medium">
-                      {selectedOrder.meja?.nama_meja}. {selectedOrder.nama_pelanggan}
-                    </p>
-                  </div>
-                  <span className="px-3 py-1 bg-amber-50 text-[#7A5C28] text-xs font-bold rounded-full border border-[#C9A96E]/30">
-                    {selectedOrder.status_pesanan}
-                  </span>
+                <div className="text-xs space-y-0.5">
+                  <h4 className="font-extrabold text-slate-900 text-sm">Order #{selectedOrder.id_pesanan}</h4>
+                  <p className="text-slate-500 font-medium">
+                    {selectedOrder.meja?.nama_meja}. {selectedOrder.nama_pelanggan}
+                  </p>
                 </div>
 
-                {/* Items Table */}
+                {/* Table of items matching Kasir.png */}
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
@@ -233,21 +308,22 @@ export default function CashierPayments() {
                 </div>
               </div>
             ) : (
-              <div className="py-8 text-center text-xs text-slate-400 font-medium">
+              <div className="py-12 border-2 border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400 font-medium">
                 Select an order to view details.
               </div>
             )}
           </div>
 
-          {/* Step 3: Payment Method Box */}
+          {/* Step 3: Payment Method Box matching Kasir.png */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
               <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
                 3
               </span>
-              <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider">Payment Method</h3>
+              <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">Payment Method</h3>
             </div>
 
+            {/* 4 Icon Payment Option Cards in horizontal row matching Kasir.png with unclipped borders */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { key: 'Cash', label: 'Cash', icon: Banknote },
@@ -262,10 +338,10 @@ export default function CashierPayments() {
                     key={m.key}
                     type="button"
                     onClick={() => setPaymentMethod(m.key)}
-                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-2xl transition-all cursor-pointer border-2 flex flex-col items-center justify-center gap-1.5 ${
                       isSelected
-                        ? 'border-slate-900 bg-slate-100 text-slate-900 font-extrabold ring-2 ring-slate-800/20'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        ? 'border-slate-900 bg-amber-50/50 text-slate-900 font-extrabold shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'
                     }`}
                   >
                     <Icon className="w-5 h-5 text-slate-700" />
@@ -276,8 +352,8 @@ export default function CashierPayments() {
             </div>
 
             {paymentMethod === 'Cash' && selectedOrder && (
-              <div className="pt-2">
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              <div className="pt-2 space-y-1">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
                   Uang Tunai Diterima (Rp)
                 </label>
                 <input
@@ -300,53 +376,6 @@ export default function CashierPayments() {
           </div>
         </div>
       </div>
-
-      {/* Payment Complete Receipt Modal matching Kasir.png Screen 3 */}
-      {receiptData && (
-        <Modal isOpen={!!receiptData} onClose={() => setReceiptData(null)} title="Payment complete" maxWidth="max-w-md">
-          <div className="space-y-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-base">Thank you!</h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Order #{receiptData.order.id_pesanan} . {receiptData.order.meja?.nama_meja}
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2 text-left">
-              {receiptData.order.detail.map((d) => (
-                <div key={d.id_detail} className="flex justify-between text-slate-700">
-                  <span>{d.jumlah} x {d.menu.nama_menu}</span>
-                  <span className="font-bold">Rp {d.subtotal.toLocaleString('id-ID')}</span>
-                </div>
-              ))}
-              <div className="pt-2 border-t border-slate-200 flex justify-between font-extrabold text-slate-900 text-sm">
-                <span>Total</span>
-                <span>Rp {receiptData.payment.total_pembayaran.toLocaleString('id-ID')}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 py-3 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Print</span>
-              </button>
-              <button
-                onClick={() => setReceiptData(null)}
-                className="flex-1 py-3 bg-[#2A2725] hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
-              >
-                New Payment
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 }

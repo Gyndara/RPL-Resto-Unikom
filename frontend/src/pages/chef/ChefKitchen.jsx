@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
-import { ChefHat, Flame, CheckCircle2, Clock, UtensilsCrossed } from 'lucide-react';
+import { ChefHat, CheckCircle2, Clock } from 'lucide-react';
 
 export default function ChefKitchen() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchKitchenOrders();
@@ -47,43 +45,17 @@ export default function ChefKitchen() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header matching Chef.png */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-sm">
-            <UtensilsCrossed className="w-5 h-5" />
-          </div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Chef Dashboard</h1>
-        </div>
-
-        {/* Navigation Tab Switcher */}
-        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl text-xs font-bold">
-          <button
-            onClick={() => navigate('/chef')}
-            className="px-4 py-2 rounded-xl bg-white text-slate-900 shadow-xs cursor-pointer"
-          >
-            Order Queue
-          </button>
-          <button
-            onClick={() => navigate('/chef/menu')}
-            className="px-4 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
-          >
-            Menu
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title & Status Counts matching Chef.png */}
+      {/* Section Title & Status Indicators matching Chef.png */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Incoming Orders</h2>
         <div className="flex items-center gap-3 text-xs font-bold">
-          <span className="flex items-center gap-1.5 text-rose-600">
+          <span className="flex items-center gap-1.5 text-rose-600 bg-rose-50 px-3.5 py-1.5 rounded-full border border-rose-200">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" /> {pendingCount} Pending
           </span>
-          <span className="flex items-center gap-1.5 text-sky-600">
+          <span className="flex items-center gap-1.5 text-sky-600 bg-sky-50 px-3.5 py-1.5 rounded-full border border-sky-200">
             <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block" /> {cookingCount} Cooking
           </span>
-          <span className="flex items-center gap-1.5 text-amber-600">
+          <span className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-3.5 py-1.5 rounded-full border border-amber-200">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" /> {readyCount} Ready
           </span>
         </div>
@@ -122,7 +94,7 @@ export default function ChefKitchen() {
                     <Badge status={order.status_pesanan} />
                   </div>
 
-                  {/* Item List with price on right */}
+                  {/* Item List with prices on right */}
                   <div className="py-4 space-y-2 text-xs">
                     {order.detail.map((d) => (
                       <div key={d.id_detail} className="flex justify-between items-center">
@@ -137,7 +109,7 @@ export default function ChefKitchen() {
                   </div>
                 </div>
 
-                {/* Footer Time & Action Button matching Chef.png */}
+                {/* Footer Time & Buttons matching Chef.png */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-slate-400 font-medium">
                     <Clock className="w-3.5 h-3.5" />
@@ -169,7 +141,7 @@ export default function ChefKitchen() {
                   )}
 
                   {isReady && (
-                    <span className="px-4 py-2 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200">
+                    <span className="px-4 py-2 bg-amber-50 text-amber-700 text-xs font-bold rounded-xl border border-amber-200">
                       Awaiting Pickup
                     </span>
                   )}

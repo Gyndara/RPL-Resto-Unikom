@@ -60,13 +60,11 @@ export default function ManagerDashboard() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header matching Manajer.png */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-sm">
-            <UtensilsCrossed className="w-5 h-5" />
-          </div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Manager Analytics</h1>
+      {/* Sub Header & Period Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Overview & Performance</h2>
+          <p className="text-xs text-slate-500 font-medium">Real-time revenue metrics and sales breakdown</p>
         </div>
 
         <div className="flex gap-1.5 bg-slate-100 p-1.5 rounded-2xl">

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import Skeleton from '../../components/common/Skeleton';
-import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
 import { Bell, Users, CheckCircle2, Utensils } from 'lucide-react';
 
@@ -68,23 +66,10 @@ export default function WaiterTables() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header bar matching Pelayan.png */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Waiter Dashboard</h1>
-          <p className="text-xs text-slate-500 font-medium">Monitor table availability and food delivery</p>
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-800 rounded-full border border-amber-200 text-xs font-bold shadow-xs">
-          <Bell className="w-4 h-4 text-amber-600" />
-          <span>{readyOrders.length} ready to serve</span>
-        </div>
-      </div>
-
-      {/* Section 1: Ready to Serve matching Pelayan.png */}
+      {/* Top Section: Ready to Serve matching Pelayan.png */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold">
+          <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
             <Bell className="w-4 h-4" />
           </div>
           <h2 className="text-xl font-extrabold text-slate-900">Ready to Serve</h2>
@@ -111,7 +96,7 @@ export default function WaiterTables() {
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-500 space-y-0.5">
+                <div className="text-xs text-slate-500 space-y-0.5 font-medium">
                   {ord.detail.map((d) => (
                     <p key={d.id_detail}>{d.jumlah}x {d.menu.nama_menu}</p>
                   ))}
@@ -131,7 +116,7 @@ export default function WaiterTables() {
         )}
       </div>
 
-      {/* Section 2: Table Grid matching Pelayan.png (5 columns desktop) */}
+      {/* Middle Section: Table matching Pelayan.png (5 columns desktop) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-extrabold text-slate-900">Table</h2>
@@ -195,7 +180,7 @@ export default function WaiterTables() {
         )}
       </div>
 
-      {/* Section 3: Order Tracker matching Pelayan.png */}
+      {/* Bottom Section: Order Tracker matching Pelayan.png */}
       <div className="space-y-4">
         <h2 className="text-xl font-extrabold text-slate-900">Order Tracker</h2>
         {activeOrders.length === 0 ? (
@@ -207,12 +192,12 @@ export default function WaiterTables() {
             {activeOrders.map((ord) => (
               <div
                 key={ord.id_pesanan}
-                className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between text-xs"
+                className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between text-xs"
               >
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-sm">#ORD-{ord.id_pesanan.toString().padStart(3, '0')}</h4>
                   <p className="text-slate-500 font-medium mt-0.5">
-                    {ord.nama_pelanggan} • {ord.meja?.nama_meja} • {new Date(ord.tanggal_pesanan).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    {ord.nama_pelanggan} - {ord.meja?.nama_meja} - {new Date(ord.tanggal_pesanan).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 <span className="font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">

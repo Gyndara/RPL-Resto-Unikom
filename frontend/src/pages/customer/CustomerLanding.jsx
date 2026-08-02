@@ -77,7 +77,7 @@ export default function CustomerLanding() {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              Table Number (Optional)
+              Table Number
             </label>
             <select
               value={selectedTableId}
