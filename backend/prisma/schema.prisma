@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,8 +8,76 @@ datasource db {
 }
 
 model Pegawai {
-  IdPegawai   Int      @id @default(autoincrement())
-  NamaPegawai String
-  username    String   @unique
-  password    String
+  id_pegawai   Int          @id @default(autoincrement())
+  nama_pegawai String
+  username     String       @unique
+  password     String
+  role         String       // chef, pelayan, kasir, manager
+  pembayaran   Pembayaran[]
+
+  @@map("pegawai")
+}
+
+model Meja {
+  id_meja     Int       @id @default(autoincrement())
+  nama_meja   String
+  kapasitas   Int
+  status_meja String    @default("Available") // Available, Ordering, Dining
+  pesanan     Pesanan[]
+
+  @@map("meja")
+}
+
+model Menu {
+  id_menu      Int             @id @default(autoincrement())
+  nama_menu    String
+  deskripsi    String?         @db.Text
+  kategori     String          // Makanan, Minuman, Camilan, Dessert
+  harga        Float
+  jumlah_porsi Int             @default(0)
+  gambar       String?
+  status_menu  String          @default("Available") // Available, Unavailable
+  detail       DetailPesanan[]
+
+  @@map("menu")
+}
+
+model Pesanan {
+  id_pesanan      Int             @id @default(autoincrement())
+  id_meja         Int
+  nama_pelanggan  String
+  tanggal_pesanan DateTime        @default(now())
+  status_pesanan  String          @default("Pending") // Pending, Cooking, Ready, Delivered, Completed, Cancelled
+  meja            Meja            @relation(fields: [id_meja], references: [id_meja], onDelete: Cascade)
+  detail          DetailPesanan[]
+  pembayaran      Pembayaran?
+
+  @@map("pesanan")
+}
+
+model DetailPesanan {
+  id_detail  Int     @id @default(autoincrement())
+  id_pesanan Int
+  id_menu    Int
+  jumlah     Int
+  catatan    String?
+  harga      Float
+  subtotal   Float
+  pesanan    Pesanan @relation(fields: [id_pesanan], references: [id_pesanan], onDelete: Cascade)
+  menu       Menu    @relation(fields: [id_menu], references: [id_menu], onDelete: Cascade)
+
+  @@map("detail_pesanan")
+}
+
+model Pembayaran {
+  id_pembayaran      Int      @id @default(autoincrement())
+  id_pesanan         Int      @unique
+  id_pegawai         Int
+  tanggal_pembayaran DateTime @default(now())
+  metode_pembayaran  String   // Cash, QRIS, Debit
+  total_pembayaran   Float
+  pesanan            Pesanan  @relation(fields: [id_pesanan], references: [id_pesanan], onDelete: Cascade)
+  pegawai            Pegawai  @relation(fields: [id_pegawai], references: [id_pegawai], onDelete: Cascade)
+
+  @@map("pembayaran")
 }
