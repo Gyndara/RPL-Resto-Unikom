@@ -198,7 +198,7 @@ export default function CustomerMenu() {
                     }`}
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>+ Add to Cart</span>
+                    <span>Add to Cart</span>
                   </button>
                 </div>
               </div>

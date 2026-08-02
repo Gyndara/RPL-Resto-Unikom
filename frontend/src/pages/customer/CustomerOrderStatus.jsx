@@ -6,8 +6,7 @@ import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
-import toast from 'react-hot-toast';
-import { Clock, CheckCircle2, ChefHat, Truck, Utensils, Plus, RefreshCw } from 'lucide-react';
+import { Clock, ChefHat, Truck, Utensils, Plus, RefreshCw } from 'lucide-react';
 
 export default function CustomerOrderStatus() {
   const { customerSession } = useAuth();
@@ -23,18 +22,31 @@ export default function CustomerOrderStatus() {
     }
 
     fetchTableOrders();
-    const interval = setInterval(fetchTableOrders, 5000); // Polling status updates every 5 sec
+    const interval = setInterval(fetchTableOrders, 4000); // Polling status updates every 4 sec
     return () => clearInterval(interval);
   }, [customerSession, navigate]);
 
   const fetchTableOrders = async () => {
+    if (!customerSession) return;
+
     try {
       const res = await api.get('/orders', {
         params: {
           tableId: customerSession.tableId,
         },
       });
-      setOrders(res.data.data);
+
+      // Filter orders belonging strictly to the current customer session
+      const sessionOrders = res.data.data.filter((o) => {
+        const matchesName = o.nama_pelanggan.toLowerCase() === customerSession.name.toLowerCase();
+        const matchesTable = o.id_meja === customerSession.tableId;
+        const afterSessionStart = customerSession.sessionStartTime
+          ? new Date(o.tanggal_pesanan) >= new Date(customerSession.sessionStartTime) - 60000 // 1 min buffer
+          : true;
+        return matchesTable && matchesName && afterSessionStart;
+      });
+
+      setOrders(sessionOrders);
     } catch (err) {
       console.error('Error fetching status', err);
     } finally {
@@ -85,7 +97,7 @@ export default function CustomerOrderStatus() {
       ) : !activeOrder ? (
         <EmptyState
           title="Belum Ada Pesanan Aktif"
-          description="Anda belum memiliki pesanan aktif di meja ini."
+          description="Anda belum memiliki pesanan aktif di sesi meja ini."
           action={
             <Button onClick={() => navigate('/customer/menu')} variant="primary" size="md">
               <Plus className="w-4 h-4" />
@@ -146,7 +158,7 @@ export default function CustomerOrderStatus() {
           </div>
 
           {/* Ordered Item Details List */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+          <div className="bg-[#ffffff] p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
             <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Rincian Item Pesanan</h4>
             <div className="divide-y divide-slate-100">
               {activeOrder.detail.map((d) => (
