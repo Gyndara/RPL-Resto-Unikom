@@ -1,15 +1,20 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingBag, UtensilsCrossed, Clock, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, UtensilsCrossed, Clock, ArrowLeft, LogOut } from 'lucide-react';
 
 export default function CustomerLayout() {
-  const { customerSession, cartItemCount, cartTotal } = useAuth();
+  const { customerSession, cartItemCount, cartTotal, clearCustomer } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isMenuPage = location.pathname === '/customer/menu';
   const isCartPage = location.pathname === '/customer/cart';
+
+  const handleLogoutCustomer = () => {
+    clearCustomer();
+    navigate('/customer');
+  };
 
   return (
     <div className="min-h-screen bg-[#F9F6F0] flex flex-col text-slate-800 font-sans">
@@ -36,7 +41,7 @@ export default function CustomerLayout() {
           </div>
 
           {customerSession && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               <span className="text-xs font-semibold text-slate-600 hidden sm:inline-block">
                 Hello, <strong className="text-slate-900 font-bold">{customerSession.name}</strong> ({customerSession.tableName})
               </span>
@@ -62,12 +67,22 @@ export default function CustomerLayout() {
                   </span>
                 )}
               </button>
+
+              {/* Customer Logout Button */}
+              <button
+                onClick={handleLogoutCustomer}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                title="Keluar Sesi Pelanggan"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Keluar</span>
+              </button>
             </div>
           )}
         </div>
       </header>
 
-      {/* Main Container View (Wider bounds to reduce side empty space) */}
+      {/* Main Container View */}
       <main className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-8 animate-fade-in">
         <Outlet />
       </main>

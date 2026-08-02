@@ -50,7 +50,12 @@ export function AuthProvider({ children }) {
   };
 
   const setCustomer = (name, tableId, tableName) => {
-    const sessionData = { name, tableId: parseInt(tableId), tableName };
+    const sessionData = {
+      name,
+      tableId: parseInt(tableId),
+      tableName,
+      sessionStartTime: new Date().toISOString(),
+    };
     setCustomerSession(sessionData);
   };
 
