@@ -59,15 +59,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#F8F3E9] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-[#C9A96E]/20 overflow-hidden animate-fade-in">
-        {/* Header */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A96E]/10 rounded-full blur-2xl pointer-events-none" />
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#C9A96E] text-white shadow-lg mb-4">
-            <UtensilsCrossed className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-extrabold tracking-tight">Portal Pegawai Resto</h2>
-          <p className="text-xs text-amber-200/80 font-medium mt-1">RESTO UNIKOM Management System</p>
-        </div>
 
         {/* Form */}
         <div className="p-8">

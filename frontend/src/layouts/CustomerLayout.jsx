@@ -36,7 +36,6 @@ export default function CustomerLayout() {
                 <UtensilsCrossed className="w-4 h-4" />
               </div>
               <span className="font-extrabold text-slate-900 tracking-tight text-lg">Resto Unikom</span>
-              {isCartPage && <span className="text-xs text-slate-400 font-bold uppercase tracking-wider ml-1">/ CUSTOMER</span>}
             </div>
           </div>
 

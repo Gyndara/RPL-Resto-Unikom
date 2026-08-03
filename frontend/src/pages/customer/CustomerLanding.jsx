@@ -69,7 +69,7 @@ export default function CustomerLanding() {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="e.g. Burhan"
+              placeholder="e.g. Bisma"
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all font-medium"
               required
             />
