@@ -67,7 +67,7 @@ export default function CustomerMenu() {
     }
     setSelectedMenu(menuItem);
     setQuantity(1);
-    setNotes('');
+    setCatatan('');
   };
 
   const handleAddToCartFromModal = () => {
@@ -76,7 +76,7 @@ export default function CustomerMenu() {
       toast.error('Porsi menu ini sedang habis');
       return;
     }
-    addToCart(selectedMenu, quantity, notes);
+    addToCart(selectedMenu, quantity, catatan);
     toast.success(`${selectedMenu.nama_menu} dimasukkan ke keranjang`);
     setSelectedMenu(null);
   };
@@ -278,8 +278,8 @@ export default function CustomerMenu() {
               </label>
               <input
                 type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
                 placeholder="Contoh: Tanpa pedas, es sedikit..."
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-800"
               />
