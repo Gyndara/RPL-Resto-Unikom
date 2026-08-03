@@ -101,7 +101,7 @@ export default function Login() {
 
             <Button type="submit" isLoading={loading} variant="primary" size="lg" className="w-full mt-2">
               <ShieldCheck className="w-5 h-5" />
-              <span>Masuk System</span>
+              <span>LOGIN</span>
             </Button>
           </form>
 
