@@ -17,6 +17,12 @@ export default function CustomerCart() {
     return null;
   }
 
+  const getImageUrl = (url) => {
+    if (!url) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:3000${url}`;
+  };
+
   const handleSubmitOrder = async () => {
     if (cart.length === 0) {
       toast.error('Keranjang Anda kosong');
@@ -77,7 +83,7 @@ export default function CustomerCart() {
               >
                 <div className="flex items-center gap-4">
                   <img
-                    src={item.gambar || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80'}
+                    src={getImageUrl(item.gambar)}
                     alt={item.nama_menu}
                     className="w-16 h-16 rounded-2xl object-cover bg-slate-100 shrink-0 border border-slate-200"
                   />

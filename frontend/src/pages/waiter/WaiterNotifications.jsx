@@ -4,7 +4,7 @@ import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
-import { BellRing, Truck, CheckCircle2, RefreshCw } from 'lucide-react';
+import { BellRing, UserCheck, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function WaiterNotifications() {
   const [readyOrders, setReadyOrders] = useState([]);
@@ -86,7 +86,7 @@ export default function WaiterNotifications() {
               </div>
 
               <Button onClick={() => handleDeliver(order.id_pesanan)} variant="orange" size="md" className="w-full">
-                <Truck className="w-4 h-4" />
+                <UserCheck className="w-4 h-4" />
                 <span>Konfirmasi Hidangan Diantar</span>
               </Button>
             </div>

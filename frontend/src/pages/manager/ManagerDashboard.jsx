@@ -45,26 +45,38 @@ export default function ManagerDashboard() {
     }
   };
 
-  const monthlyChartData = [
-    { month: 'Jan', revenue: 48 },
-    { month: 'Feb', revenue: 38 },
-    { month: 'Mar', revenue: 54 },
-    { month: 'Apr', revenue: 46 },
-    { month: 'Mei', revenue: 58 },
-  ];
+  const formatGrowth = (val) => {
+    if (val === undefined || val === null) return '0%';
+    const num = Number(val);
+    const prefix = num >= 0 ? '+' : '';
+    return `${prefix}${num}%`;
+  };
 
-  const categoryPieData = [
-    { name: 'Food', value: 65, color: '#2A2725' },
-    { name: 'Drinks', value: 35, color: '#C9A96E' },
-  ];
+  const getGrowthClass = (val) => {
+    const num = Number(val);
+    if (num > 0) return 'text-emerald-600';
+    if (num < 0) return 'text-rose-600';
+    return 'text-slate-400';
+  };
+
+  const summary = reportData?.summary || {};
+  const revenueSummary = reportData?.revenueSummary || {};
+  const topSellingMenus = reportData?.topSellingMenus || [];
+  const categoryPieData = reportData?.categoryPieData || [];
+  const revenueTrend = reportData?.revenueTrend || [];
+  const monthlyRevenue = reportData?.monthlyRevenue || [];
+
+  const maxBestSellerQty = topSellingMenus.length > 0
+    ? Math.max(...topSellingMenus.map((i) => i.quantity))
+    : 1;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-12">
       {/* Sub Header & Period Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Overview & Performance</h2>
-          <p className="text-xs text-slate-500 font-medium">Real-time revenue metrics and sales breakdown</p>
+          <p className="text-xs text-slate-500 font-medium">Real-time revenue metrics and sales breakdown from database</p>
         </div>
 
         <div className="flex gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
@@ -89,7 +101,7 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Top 4 KPI Summary Cards matching Manajer.png Screen 1 */}
+      {/* Top 4 Dynamic KPI Summary Cards */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((n) => (
@@ -105,10 +117,12 @@ export default function ManagerDashboard() {
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900">
-                Rp. {(reportData?.summary?.totalRevenue || 40200000).toLocaleString('id-ID')}
+                Rp {(summary.totalRevenue || 0).toLocaleString('id-ID')}
               </h3>
               <p className="text-xs text-slate-400 font-bold mt-0.5">Total Revenue</p>
-              <span className="text-[11px] font-bold text-emerald-600 block mt-1">+12.4% vs last week</span>
+              <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(summary.revenueGrowth)}`}>
+                {formatGrowth(summary.revenueGrowth)} vs periode lalu
+              </span>
             </div>
           </div>
 
@@ -119,10 +133,12 @@ export default function ManagerDashboard() {
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900">
-                {reportData?.summary?.totalOrders || 289}
+                {(summary.totalOrders || 0).toLocaleString('id-ID')}
               </h3>
               <p className="text-xs text-slate-400 font-bold mt-0.5">Total Orders</p>
-              <span className="text-[11px] font-bold text-emerald-600 block mt-1">+12.4%</span>
+              <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(summary.ordersGrowth)}`}>
+                {formatGrowth(summary.ordersGrowth)} vs periode lalu
+              </span>
             </div>
           </div>
 
@@ -133,10 +149,10 @@ export default function ManagerDashboard() {
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900">
-                Rp. {(reportData?.summary?.averageTransaction || 139100).toLocaleString('id-ID')}
+                Rp {(summary.averageTransaction || 0).toLocaleString('id-ID')}
               </h3>
               <p className="text-xs text-slate-400 font-bold mt-0.5">Avg Transaction</p>
-              <span className="text-[11px] font-bold text-[#C9A96E] block mt-1">per Order</span>
+              <span className="text-[11px] font-bold text-[#C9A96E] block mt-1">per Transaksi</span>
             </div>
           </div>
 
@@ -147,71 +163,65 @@ export default function ManagerDashboard() {
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900">
-                {reportData?.summary?.totalTransactions || 264}
+                {(summary.totalTransactions || 0).toLocaleString('id-ID')}
               </h3>
               <p className="text-xs text-slate-400 font-bold mt-0.5">Customers</p>
-              <span className="text-[11px] font-bold text-emerald-600 block mt-1">+12.4%</span>
+              <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(summary.customersGrowth)}`}>
+                {formatGrowth(summary.customersGrowth)} vs periode lalu
+              </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Charts Grid matching Manajer.png Screen 1 & 2 */}
+      {/* Dynamic Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Revenue Trend Line Chart */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <div>
             <h3 className="font-extrabold text-slate-900 text-base">Revenue Trend</h3>
-            <p className="text-xs text-slate-400 font-medium">Daily revenue this week</p>
+            <p className="text-xs text-slate-400 font-medium">Tren pendapatan real-time ({period})</p>
           </div>
 
           <div className="h-60 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={
-                  reportData?.revenueTrend?.length > 0
-                    ? reportData.revenueTrend
-                    : [
-                        { date: 'Mon', revenue: 1500000 },
-                        { date: 'Tue', revenue: 3800000 },
-                        { date: 'Wed', revenue: 1800000 },
-                        { date: 'Thu', revenue: 5600000 },
-                        { date: 'Fri', revenue: 2400000 },
-                        { date: 'Sat', revenue: 2100000 },
-                        { date: 'Sun', revenue: 8900000 },
-                      ]
-                }
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <Tooltip formatter={(val) => [`Rp ${val.toLocaleString('id-ID')}`, 'Revenue']} />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#C9A96E"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: '#C9A96E' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {revenueTrend.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs text-slate-400 font-medium">
+                Belum ada transaksi pendapatan pada periode ini
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueTrend}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                  <Tooltip formatter={(val) => [`Rp ${Number(val).toLocaleString('id-ID')}`, 'Revenue']} />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#C9A96E"
+                    strokeWidth={3}
+                    dot={{ r: 5, fill: '#C9A96E' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
         {/* Monthly Revenue Bar Chart */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <div>
-            <h3 className="font-extrabold text-slate-900 text-base">Monthly Revenue</h3>
-            <p className="text-xs text-slate-400 font-medium">Revenue per month (H1 2026)</p>
+            <h3 className="font-extrabold text-slate-900 text-base">Monthly Revenue ({new Date().getFullYear()})</h3>
+            <p className="text-xs text-slate-400 font-medium">Pendapatan bulanan tahun {new Date().getFullYear()} dari DB</p>
           </div>
 
           <div className="h-60 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyChartData}>
+              <BarChart data={monthlyRevenue}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <Tooltip formatter={(val) => [`${val} M`, 'Revenue']} />
+                <Tooltip formatter={(val) => [`Rp ${Number(val).toLocaleString('id-ID')}`, 'Revenue']} />
                 <Bar dataKey="revenue" fill="#C9A96E" radius={[6, 6, 0, 0]} barSize={36} />
               </BarChart>
             </ResponsiveContainer>
@@ -219,110 +229,134 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Screen 2: Best Selling Items & Donut & Summary matching Manajer.png */}
+      {/* Best Selling Items & Donut & Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Top 5 Best Selling Items */}
         <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-5">
           <div>
             <h3 className="font-extrabold text-slate-900 text-base">Best Selling Items</h3>
-            <p className="text-xs text-slate-400 font-medium">Top 5 most ordered dishes</p>
+            <p className="text-xs text-slate-400 font-medium">Top 5 menu terlaris dipesan pelanggan</p>
           </div>
 
-          <div className="space-y-4">
-            {(
-              reportData?.topSellingMenus?.length > 0
-                ? reportData.topSellingMenus
-                : [
-                    { name: 'Wagyu Burger', quantity: 342 },
-                    { name: 'Pan-Seared Salmon', quantity: 289 },
-                    { name: 'Truffle Pasta', quantity: 256 },
-                    { name: 'Matcha Latte', quantity: 198 },
-                    { name: 'Caesar Salad', quantity: 175 },
-                  ]
-            ).map((item, idx) => (
-              <div key={item.name} className="space-y-1 text-xs">
-                <div className="flex justify-between font-bold text-slate-800">
-                  <span>
-                    {idx + 1}. {item.name}
-                  </span>
-                  <span>{item.quantity}</span>
+          {topSellingMenus.length === 0 ? (
+            <div className="py-12 text-center text-xs text-slate-400 font-medium">
+              Belum ada transaksi menu pada periode ini
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {topSellingMenus.map((item, idx) => (
+                <div key={item.name} className="space-y-1 text-xs">
+                  <div className="flex justify-between font-bold text-slate-800">
+                    <span>
+                      {idx + 1}. {item.name} <span className="text-[10px] text-slate-400 font-normal">({item.category})</span>
+                    </span>
+                    <span className="font-extrabold text-[#C9A96E]">{item.quantity} porsi</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-[#C9A96E] h-2.5 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, (item.quantity / maxBestSellerQty) * 100)}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className="bg-[#C9A96E] h-2.5 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, (item.quantity / 350) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Sales by Category Donut Chart */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
           <div>
             <h3 className="font-extrabold text-slate-900 text-base">Sales by Category</h3>
-            <p className="text-xs text-slate-400 font-medium">Food Vs Drinks</p>
+            <p className="text-xs text-slate-400 font-medium">Proporsi Penjualan per Kategori</p>
           </div>
 
-          <div className="h-48 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryPieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={75}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {categoryPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {categoryPieData.length === 0 ? (
+            <div className="h-48 flex items-center justify-center text-xs text-slate-400 font-medium">
+              Belum ada data kategori
+            </div>
+          ) : (
+            <>
+              <div className="h-48 w-full flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={75}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {categoryPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(val, name) => [`${val} Porsi`, name]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
 
-          <div className="flex justify-center gap-6 text-xs font-bold">
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#2A2725] inline-block" /> Food
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#C9A96E] inline-block" /> Drinks
-            </span>
-          </div>
+              <div className="flex flex-wrap justify-center gap-4 text-xs font-bold pt-2">
+                {categoryPieData.map((c) => (
+                  <span key={c.name} className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: c.color }} />
+                    <span className="text-slate-700">{c.name} ({c.value})</span>
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Revenue Summary Cards Bottom matching Manajer.png */}
+      {/* Revenue Summary Cards Bottom */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-        <h3 className="font-extrabold text-slate-900 text-base">Revenue Summary</h3>
+        <div>
+          <h3 className="font-extrabold text-slate-900 text-base">Revenue Summary</h3>
+          <p className="text-xs text-slate-400 font-medium">Ringkasan total pendapatan kumulatif dari database</p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/60">
             <span className="text-xs font-bold text-slate-400 block">Today</span>
-            <h4 className="text-xl font-black text-slate-900 mt-1">Rp 6,800,000</h4>
-            <span className="text-[11px] font-bold text-emerald-600 block mt-1">+8.2%</span>
+            <h4 className="text-xl font-black text-slate-900 mt-1">
+              Rp {(revenueSummary.today || 0).toLocaleString('id-ID')}
+            </h4>
+            <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.todayGrowth)}`}>
+              {formatGrowth(revenueSummary.todayGrowth)} vs kemarin
+            </span>
           </div>
 
           <div className="bg-[#2A2725] text-white p-5 rounded-2xl shadow-md">
             <span className="text-xs font-bold text-amber-200/80 block">This Week</span>
-            <h4 className="text-xl font-black text-white mt-1">Rp 40,200,000</h4>
-            <span className="text-[11px] font-bold text-emerald-400 block mt-1">+12.4%</span>
+            <h4 className="text-xl font-black text-white mt-1">
+              Rp {(revenueSummary.thisWeek || 0).toLocaleString('id-ID')}
+            </h4>
+            <span className="text-[11px] font-bold text-emerald-400 block mt-1">
+              {formatGrowth(revenueSummary.thisWeekGrowth)} vs minggu lalu
+            </span>
           </div>
 
           <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/60">
             <span className="text-xs font-bold text-slate-400 block">This Month</span>
-            <h4 className="text-xl font-black text-slate-900 mt-1">Rp 158,000,000</h4>
-            <span className="text-[11px] font-bold text-emerald-600 block mt-1">+9.7%</span>
+            <h4 className="text-xl font-black text-slate-900 mt-1">
+              Rp {(revenueSummary.thisMonth || 0).toLocaleString('id-ID')}
+            </h4>
+            <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.thisMonthGrowth)}`}>
+              {formatGrowth(revenueSummary.thisMonthGrowth)} vs bulan lalu
+            </span>
           </div>
 
           <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/60">
             <span className="text-xs font-bold text-slate-400 block">This Year</span>
-            <h4 className="text-xl font-black text-slate-900 mt-1">Rp 1,890,000,000</h4>
-            <span className="text-[11px] font-bold text-emerald-600 block mt-1">+21.3%</span>
+            <h4 className="text-xl font-black text-slate-900 mt-1">
+              Rp {(revenueSummary.thisYear || 0).toLocaleString('id-ID')}
+            </h4>
+            <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.thisYearGrowth)}`}>
+              {formatGrowth(revenueSummary.thisYearGrowth)} vs tahun lalu
+            </span>
           </div>
         </div>
       </div>

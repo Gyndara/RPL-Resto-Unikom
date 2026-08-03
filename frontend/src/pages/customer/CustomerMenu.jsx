@@ -20,7 +20,13 @@ export default function CustomerMenu() {
   // Modal State for Menu Detail
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [notes, setNotes] = useState('');
+  const [catatan, setCatatan] = useState('');
+
+  const getImageUrl = (url) => {
+    if (!url) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:3000${url}`;
+  };
 
   useEffect(() => {
     if (!customerSession) {
@@ -160,7 +166,7 @@ export default function CustomerMenu() {
                   {/* Card Thumbnail Image */}
                   <div className="relative h-44 w-full rounded-2xl overflow-hidden mb-3 bg-slate-100">
                     <img
-                      src={item.gambar || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80'}
+                      src={getImageUrl(item.gambar)}
                       alt={item.nama_menu}
                       className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
                         isOutOfStock ? 'grayscale opacity-60' : ''
@@ -219,7 +225,7 @@ export default function CustomerMenu() {
             {/* Modal Image Header */}
             <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs">
               <img
-                src={selectedMenu.gambar || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80'}
+                src={getImageUrl(selectedMenu.gambar)}
                 alt={selectedMenu.nama_menu}
                 className="w-full h-full object-cover"
               />

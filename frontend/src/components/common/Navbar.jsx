@@ -13,6 +13,7 @@ export default function Navbar({ onToggleSidebar, title, hideSidebar }) {
 
   const isManager = user?.role === 'manager';
   const isManagerReports = location.pathname.includes('/manager/reports');
+  const isManagerRegister = location.pathname.includes('/manager/register');
 
   return (
     <header className="sticky top-0 z-30 h-20 bg-white border-b border-slate-200/80 px-6 md:px-8 flex items-center justify-between shadow-xs">
@@ -66,7 +67,7 @@ export default function Navbar({ onToggleSidebar, title, hideSidebar }) {
           <button
             onClick={() => navigate('/manager')}
             className={`px-4 py-2 rounded-xl transition-all cursor-pointer ${
-              !isManagerReports
+              !isManagerReports && !isManagerRegister
                 ? 'bg-white text-slate-900 shadow-xs font-extrabold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
@@ -83,8 +84,19 @@ export default function Navbar({ onToggleSidebar, title, hideSidebar }) {
           >
             Laporan Pendapatan
           </button>
+          <button
+            onClick={() => navigate('/manager/register')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer ${
+              isManagerRegister
+                ? 'bg-white text-slate-900 shadow-xs font-extrabold'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            Register Akun
+          </button>
         </div>
       )}
+
 
       <div className="flex items-center gap-4">
         <div className="text-right hidden sm:block">

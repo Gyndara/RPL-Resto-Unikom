@@ -6,7 +6,7 @@ import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
-import { Clock, ChefHat, Truck, Utensils, Plus, RefreshCw } from 'lucide-react';
+import { Clock, ChefHat, UserCheck, Utensils, Plus, RefreshCw } from 'lucide-react';
 
 export default function CustomerOrderStatus() {
   const { customerSession } = useAuth();
@@ -108,7 +108,7 @@ export default function CustomerOrderStatus() {
       ) : (
         <div className="space-y-5">
           {/* Status Timeline Box */}
-          <div className="bg-white p-6 rounded-3xl border border-[#C9A96E]/30 shadow-md space-y-6">
+          <div className="bg-[#FFFFFF] p-6 rounded-3xl border border-[#C9A96E]/30 shadow-md space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-400">Order ID</span>
@@ -131,7 +131,7 @@ export default function CustomerOrderStatus() {
                 { step: 1, label: 'Pending', icon: Clock },
                 { step: 2, label: 'Dimasak', icon: ChefHat },
                 { step: 3, label: 'Siap', icon: Utensils },
-                { step: 4, label: 'Diantar', icon: Truck },
+                { step: 4, label: 'Diantar', icon: UserCheck },
               ].map((s) => {
                 const Icon = s.icon;
                 const isCurrent = getStatusStep(activeOrder.status_pesanan) === s.step;

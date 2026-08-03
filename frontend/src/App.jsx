@@ -30,6 +30,7 @@ import CashierPayments from './pages/cashier/CashierPayments';
 // Manager Pages
 import ManagerDashboard from './pages/manager/ManagerDashboard';
 import ManagerReports from './pages/manager/ManagerReports';
+import ManagerRegisterStaff from './pages/manager/ManagerRegisterStaff';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -172,6 +173,7 @@ export default function App() {
             >
               <Route index element={<ManagerDashboard />} />
               <Route path="reports" element={<ManagerReports />} />
+              <Route path="register" element={<ManagerRegisterStaff />} />
             </Route>
 
             {/* Fallback Catch-all */}

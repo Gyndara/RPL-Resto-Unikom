@@ -19,6 +19,7 @@ export default function DashboardLayout({ title }) {
     if (path.includes('/chef')) return 'Chef Dashboard';
     if (path.includes('/cashier/reports')) return 'Kasir Laporan';
     if (path.includes('/cashier')) return 'Kasir';
+    if (path.includes('/manager/register')) return 'Register Akun Pegawai';
     if (path.includes('/manager/reports')) return 'Manager Analytics';
     if (path.includes('/manager')) return 'Manager Analytics';
     return 'Dashboard';
