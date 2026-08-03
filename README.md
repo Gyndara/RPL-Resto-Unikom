@@ -4,10 +4,8 @@
 
 ```text
 RestaurantManagementSystem/
-├── be/          # Express backend API
-├── fe/          # React frontend application
-├── ui/          # UI/UX design references
-├── docs/        # Project documentation
+├── backend/
+├── frontend/          
 ├── .gitignore
 └── README.md
 ```
