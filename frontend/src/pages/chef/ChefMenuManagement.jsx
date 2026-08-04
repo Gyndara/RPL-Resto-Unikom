@@ -5,6 +5,7 @@ import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, Utensils, Image as ImageIcon } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageUrl';
 
 export default function ChefMenuManagement() {
   const [menus, setMenus] = useState([]);
@@ -163,13 +164,7 @@ export default function ChefMenuManagement() {
                 {/* Menu Image & Overlay Action Buttons matching Chef.png */}
                 <div className="relative h-44 bg-slate-100 overflow-hidden">
                   <img
-                    src={
-                      item.gambar
-                        ? item.gambar.startsWith('http')
-                          ? item.gambar
-                          : `http://localhost:3000${item.gambar}`
-                        : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
-                    }
+                    src={getImageUrl(item.gambar)}
                     alt={item.nama_menu}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

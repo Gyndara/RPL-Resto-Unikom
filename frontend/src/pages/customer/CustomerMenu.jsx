@@ -8,6 +8,8 @@ import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
 import { Search, Plus, Minus, Utensils, MessageSquare } from 'lucide-react';
 
+import { getImageUrl } from '../../utils/imageUrl';
+
 export default function CustomerMenu() {
   const { customerSession, addToCart, cart } = useAuth();
   const navigate = useNavigate();
@@ -21,12 +23,6 @@ export default function CustomerMenu() {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [catatan, setCatatan] = useState('');
-
-  const getImageUrl = (url) => {
-    if (!url) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:3000${url}`;
-  };
 
   useEffect(() => {
     if (!customerSession) {

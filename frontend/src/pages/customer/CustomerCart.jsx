@@ -7,6 +7,8 @@ import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
 import { ShoppingBag, Plus, Minus, Trash2, Send, UtensilsCrossed } from 'lucide-react';
 
+import { getImageUrl } from '../../utils/imageUrl';
+
 export default function CustomerCart() {
   const { customerSession, cart, updateCartQuantity, updateCartNotes, clearCart, cartTotal, cartItemCount } = useAuth();
   const navigate = useNavigate();
@@ -16,12 +18,6 @@ export default function CustomerCart() {
     navigate('/customer');
     return null;
   }
-
-  const getImageUrl = (url) => {
-    if (!url) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:3000${url}`;
-  };
 
   const handleSubmitOrder = async () => {
     if (cart.length === 0) {
