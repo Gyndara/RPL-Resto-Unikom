@@ -21,6 +21,14 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Root Route
+app.get('/', (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: 'RESTO UNIKOM API Server is online',
+  });
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   return res.status(200).json({
