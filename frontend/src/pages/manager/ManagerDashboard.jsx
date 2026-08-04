@@ -325,7 +325,7 @@ export default function ManagerDashboard() {
               Rp {(revenueSummary.today || 0).toLocaleString('id-ID')}
             </h4>
             <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.todayGrowth)}`}>
-              {formatGrowth(revenueSummary.todayGrowth)} vs kemarin
+              {formatGrowth(revenueSummary.todayGrowth)}
             </span>
           </div>
 
@@ -335,7 +335,7 @@ export default function ManagerDashboard() {
               Rp {(revenueSummary.thisWeek || 0).toLocaleString('id-ID')}
             </h4>
             <span className="text-[11px] font-bold text-emerald-400 block mt-1">
-              {formatGrowth(revenueSummary.thisWeekGrowth)} vs minggu lalu
+              {formatGrowth(revenueSummary.thisWeekGrowth)}
             </span>
           </div>
 
@@ -345,7 +345,7 @@ export default function ManagerDashboard() {
               Rp {(revenueSummary.thisMonth || 0).toLocaleString('id-ID')}
             </h4>
             <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.thisMonthGrowth)}`}>
-              {formatGrowth(revenueSummary.thisMonthGrowth)} vs bulan lalu
+              {formatGrowth(revenueSummary.thisMonthGrowth)}
             </span>
           </div>
 
@@ -355,7 +355,7 @@ export default function ManagerDashboard() {
               Rp {(revenueSummary.thisYear || 0).toLocaleString('id-ID')}
             </h4>
             <span className={`text-[11px] font-bold block mt-1 ${getGrowthClass(revenueSummary.thisYearGrowth)}`}>
-              {formatGrowth(revenueSummary.thisYearGrowth)} vs tahun lalu
+              {formatGrowth(revenueSummary.thisYearGrowth)}
             </span>
           </div>
         </div>
