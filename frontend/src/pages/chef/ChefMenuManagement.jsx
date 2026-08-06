@@ -4,7 +4,7 @@ import Modal from '../../components/common/Modal';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Utensils, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Utensils, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUrl';
 
 export default function ChefMenuManagement() {
@@ -23,6 +23,10 @@ export default function ChefMenuManagement() {
   });
   const [imageFile, setImageFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Delete Confirmation Card State
+  const [menuToDelete, setMenuToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchMenus();
@@ -81,14 +85,27 @@ export default function ChefMenuManagement() {
     }
   };
 
-  const handleDelete = async (menuId) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus menu ini?')) return;
+  const handleOpenDeleteConfirm = (menu) => {
+    setMenuToDelete(menu);
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    if (isDeleting) return;
+    setMenuToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!menuToDelete) return;
+    setIsDeleting(true);
     try {
-      await api.delete(`/menu/${menuId}`);
-      toast.success('Menu berhasil dihapus');
+      await api.delete(`/menu/${menuToDelete.id_menu}`);
+      toast.success(`Menu "${menuToDelete.nama_menu}" berhasil dihapus`);
+      setMenuToDelete(null);
       fetchMenus();
     } catch (err) {
-      toast.error('Gagal menghapus menu');
+      toast.error(err.response?.data?.message || 'Gagal menghapus menu');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -176,8 +193,9 @@ export default function ChefMenuManagement() {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id_menu)}
+                      onClick={() => handleOpenDeleteConfirm(item)}
                       className="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-rose-600 shadow-sm flex items-center justify-center transition-colors cursor-pointer"
+                      title="Hapus Menu"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -318,6 +336,80 @@ export default function ChefMenuManagement() {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* Delete Confirmation Card / Modal */}
+      {menuToDelete && (
+        <Modal
+          isOpen={!!menuToDelete}
+          onClose={handleCloseDeleteConfirm}
+          title="Konfirmasi Hapus Menu"
+          maxWidth="max-w-md"
+        >
+          <div className="space-y-5">
+            {/* Warning Header */}
+            <div className="flex items-center gap-4 p-3.5 bg-rose-50 border border-rose-100 rounded-2xl">
+              <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-slate-900">Hapus Menu Ini?</h4>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Tindakan ini permanen dan tidak dapat dibatalkan.
+                </p>
+              </div>
+            </div>
+
+            {/* Menu Item Detail Card Preview */}
+            <div className="flex items-center gap-3.5 p-3 bg-slate-50 border border-slate-200/80 rounded-2xl">
+              <img
+                src={getImageUrl(menuToDelete.gambar)}
+                alt={menuToDelete.nama_menu}
+                className="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <h5 className="font-extrabold text-slate-900 text-sm truncate">{menuToDelete.nama_menu}</h5>
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                  Rp {Number(menuToDelete.harga || 0).toLocaleString('id-ID')}
+                </p>
+                <span className="inline-block mt-1 px-2 py-0.5 bg-slate-200 text-slate-700 font-extrabold text-[10px] rounded-md uppercase">
+                  {menuToDelete.kategori}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              Apakah Anda yakin ingin menghapus menu <strong className="text-slate-900 font-bold">{menuToDelete.nama_menu}</strong> dari daftar menu resto?
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleCloseDeleteConfirm}
+                disabled={isDeleting}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <span>Menghapus...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Ya, Hapus</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
