@@ -15,8 +15,10 @@ import {
   Lock,
   User,
   KeyRound,
+  AlertTriangle,
 } from 'lucide-react';
 import Skeleton from '../../components/common/Skeleton';
+import Modal from '../../components/common/Modal';
 
 export default function ManagerRegisterStaff() {
   const [formData, setFormData] = useState({
@@ -30,6 +32,9 @@ export default function ManagerRegisterStaff() {
 
   const [staffList, setStaffList] = useState([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
+
+  const [staffToDelete, setStaffToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchStaffList();
@@ -95,20 +100,32 @@ export default function ManagerRegisterStaff() {
     }
   };
 
-  const handleDeleteStaff = async (id_pegawai, nama_pegawai) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus akun ${nama_pegawai}?`)) {
-      return;
-    }
+  const handleOpenDeleteConfirm = (staff) => {
+    setStaffToDelete(staff);
+  };
 
+  const handleCloseDeleteConfirm = () => {
+    if (!deleting) {
+      setStaffToDelete(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!staffToDelete) return;
+
+    setDeleting(true);
     try {
-      const res = await api.delete(`/auth/staff/${id_pegawai}`);
+      const res = await api.delete(`/auth/staff/${staffToDelete.id_pegawai}`);
       if (res.data.success) {
-        toast.success(`Akun ${nama_pegawai} berhasil dihapus`);
+        toast.success(`Akun ${staffToDelete.nama_pegawai} berhasil dihapus`);
+        setStaffToDelete(null);
         fetchStaffList();
       }
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Gagal menghapus pegawai';
       toast.error(errorMsg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -350,7 +367,7 @@ export default function ManagerRegisterStaff() {
                     {getRoleBadge(st.role)}
                     {st.role !== 'manager' && (
                       <button
-                        onClick={() => handleDeleteStaff(st.id_pegawai, st.nama_pegawai)}
+                        onClick={() => handleOpenDeleteConfirm(st)}
                         className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         title="Hapus Pegawai"
                       >
@@ -364,6 +381,79 @@ export default function ManagerRegisterStaff() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Card Modal */}
+      {staffToDelete && (
+        <Modal
+          isOpen={!!staffToDelete}
+          onClose={handleCloseDeleteConfirm}
+          title="Konfirmasi Hapus Akun"
+          maxWidth="max-w-md"
+        >
+          <div className="space-y-5">
+            {/* Warning Header Box */}
+            <div className="flex items-center gap-4 p-3.5 bg-rose-50 border border-rose-100 rounded-2xl">
+              <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-slate-900">Hapus Akun Pegawai?</h4>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Tindakan ini permanen dan tidak dapat dibatalkan.
+                </p>
+              </div>
+            </div>
+
+            {/* Staff Account Detail Card Preview */}
+            <div className="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl">
+              <div className="w-11 h-11 rounded-xl bg-[#2A2725] text-white flex items-center justify-center font-black text-base shrink-0">
+                {staffToDelete.nama_pegawai ? staffToDelete.nama_pegawai.charAt(0).toUpperCase() : 'P'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h5 className="font-extrabold text-slate-900 text-sm truncate">{staffToDelete.nama_pegawai}</h5>
+                <p className="text-xs text-slate-400 font-medium">@{staffToDelete.username}</p>
+              </div>
+              <div className="shrink-0">
+                {getRoleBadge(staffToDelete.role)}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              Apakah Anda yakin ingin menghapus akun pegawai <strong className="text-slate-900 font-bold">{staffToDelete.nama_pegawai}</strong> (@{staffToDelete.username}) dari sistem?
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleCloseDeleteConfirm}
+                disabled={deleting}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {deleting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Menghapus...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Ya, Hapus</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
